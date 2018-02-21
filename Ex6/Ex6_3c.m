@@ -63,28 +63,3 @@ vl = [xl ; ul];
 % Solve LQ problem
 [y,fval,exitflag,output] = quadprog(H,[],[],[], Aeq, beq, vl, vu);
 
-%Plot solution
-z = y(1:length(y));
-u = zeros(N,1);
-offset = 1;
-for i = 1:n
-    u(offset:offset+input_length(i)-1) = z(mx*N+i)*ones(input_length(i),1);
-    offset = offset + input_length(i);
-end
-
-y = [x0(3); z(3:3:3*N)];
-
-t = 1:N;
-
-figure
-subplot(211)
-plot([0 t],y,'-o')
-legend y(t)
-xlabel('t[s]')
-ylabel('y(t)')
-
-subplot(212)
-plot(t,u,'-o')
-legend u(t)
-xlabel('t[s]')
-ylabel('u(t)')

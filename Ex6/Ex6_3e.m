@@ -68,3 +68,19 @@ for i = 1:N
     x(:,i+1) = Ad*x(:,i) + Bd*u(i);
 
 end
+
+t = 1:N;
+
+figure
+subplot(211)
+plot([0 t],x(3,:),'-o')
+legend y(t)
+xlabel('t[s]')
+ylabel('y(t)')
+
+
+subplot(212)
+plot(t,u,'-o')
+legend u(t)
+xlabel('t[s]')
+ylabel('u(t)')
