@@ -1,9 +1,8 @@
 clc
 clear all
-% Exercise 7 Problem 3 %
+%% Assignment 7 Problem 4 %%
 
-%% MPC control %%
-%Parameters
+% Parameters
 k1 = 1;
 k2 = 1;
 k3 = 1;
@@ -17,7 +16,7 @@ NN = 50;
 
 
 
-%Continuous
+% Continuous
 Ac = [0 1;
     -k2, -k3];
 Bc = [0 k3]';
@@ -28,14 +27,11 @@ Bd = T*Bc;
 C = [1 0];
 
 % Optimization weights
+Q = [4 0;0 4];
 q = 4;
 R = 1;
 
-%% Observer
-p = [0.5+0.03i ; 0.5-0.03i];
-L = place(Ad',C',p)';
-
-
+[K P e] = dlqr(Ad, Bd, Q/2, R/2, []);
 
 %% MPC
 % We want to use MPC control with time horizon of 10 steps-
@@ -43,10 +39,10 @@ L = place(Ad',C',p)';
 
 N = 10;
 
-Q1 = q*ones(1,nx*N);
+Q1 = q*ones(1,nx*(N-1));
 Q1 = diag(Q1);
 R1 = diag(R*ones(1,nu*N));
-H = blkdiag(Q1,R1);
+H = blkdiag(Q1,P,R1);
 
 
 A1 = eye(nx*N);
@@ -78,14 +74,10 @@ u = zeros(nu,NN+1);
 %Initial value
 
 x(:,1) = x0;
-xhat(:,1) = xhat0;
-
-
-
 
 for i = 1:NN
     % Update initial value
-    beq(1:nx,1) = Ad*xhat(:,i);
+    beq(1:nx,1) = Ad*x(:,i);
     
     % Solve finite time horizon optimization
     [z,fval,exitflag,output,lambda] = quadprog(H,[],[],[],Aeq,beq,lb,ub);
@@ -96,11 +88,9 @@ for i = 1:NN
     %Simulate one additional step
     x(:,i+1) = Ad*x(:,i) + Bd*u(i);
     
-    %Estimate next state:
-    xhat(:,i+1) = Ad*xhat(:,i) + L*C*(x(:,i)-xhat(:,i)) + Bd*u(i);
-    
 end
     
+
 
 % Plotting solution
 
@@ -110,17 +100,17 @@ t1 = NN*T;
 t = t0:T:t1;
 
 figure(2)
+
 xlabel('t [s]');
 subplot(211)
 plot(t,x,'-');
-hold on
-plot(t,xhat,'--');
-hleg = legend('$x_1(t)$','$x_2(t)$','$\hat{x}_1(t)$', '$\hat{x}_2(t)$');
-set(hleg, 'Interpreter', 'Latex');
+hleg1 = legend('$x_1(t)$','$x_2(t)$');
+set(hleg1, 'Interpreter', 'Latex');
+grid on
 
 subplot(212)
 plot(t,u)
-
-
-
+hleg2 = legend('$u(t)$');
+set(hleg2, 'Interpreter', 'Latex')
+grid on
 

@@ -85,7 +85,7 @@ xhat(:,1) = xhat0;
 
 for i = 1:NN
     % Update initial value
-    beq(1:nx,1) = Ad*xhat(:,i);
+    beq(1:nx,1) = Ad*x(:,i);
     
     % Solve finite time horizon optimization
     [z,fval,exitflag,output,lambda] = quadprog(H,[],[],[],Aeq,beq,lb,ub);
@@ -95,9 +95,7 @@ for i = 1:NN
     
     %Simulate one additional step
     x(:,i+1) = Ad*x(:,i) + Bd*u(i);
-    
-    %Estimate next state:
-    xhat(:,i+1) = Ad*xhat(:,i) + L*C*(x(:,i)-xhat(:,i)) + Bd*u(i);
+
     
 end
     
@@ -110,17 +108,19 @@ t1 = NN*T;
 t = t0:T:t1;
 
 figure(2)
+
 xlabel('t [s]');
 subplot(211)
 plot(t,x,'-');
-hold on
-plot(t,xhat,'--');
-hleg = legend('$x_1(t)$','$x_2(t)$','$\hat{x}_1(t)$', '$\hat{x}_2(t)$');
-set(hleg, 'Interpreter', 'Latex');
+hleg1 = legend('$x_1(t)$','$x_2(t)$');
+set(hleg1, 'Interpreter', 'Latex');
+grid on
 
 subplot(212)
 plot(t,u)
-
+hleg2 = legend('$u(t)$');
+set(hleg2, 'Interpreter', 'Latex')
+grid on
 
 
 
